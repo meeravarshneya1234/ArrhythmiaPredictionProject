@@ -1,6 +1,6 @@
 function plotML(datasets,x_labels,feature)
-Folder = 'Data\';
-index = xlsread([Folder datasets{1} '.xlsx'],3);
+Folder = 'Manuscript_Data\';
+index = readmatrix([Folder datasets{1} '.xlsx'],'Sheet','Prediction');
 
 % create ROC for APD 
 if ~exist('feature','var')

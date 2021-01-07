@@ -1,4 +1,4 @@
-load('Data\BaseCells') %load population data
+load('Manuscript_Data\BasePop') %load population data
 
 settings.celltype = 'endo';
 settings.PCL = 1000 ;  % Pacing, Interval bewteen stimuli,[ms]

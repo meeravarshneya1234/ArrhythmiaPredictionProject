@@ -1,5 +1,5 @@
 %% Figure 2A - Determine number of overlapping labels between three triggers
-data = readtable('Data\Population_Feature_Outputs.csv');
+data = readtable('Manuscript_Data\Population_Feature_Outputs.csv');
 labels = [data.IKrBlock_Label,data.ICaLIncrease_Label,data.Inject_Label];
 
 % Determine number of overlapping labels between three triggers

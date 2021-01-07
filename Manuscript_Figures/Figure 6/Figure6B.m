@@ -1,5 +1,5 @@
 %% Figure 6B: Find 10 cells with similar APDs but different thresholds 
-file = 'Data\Population_Feature_Outputs.csv';
+file = 'Manuscript_Data\Population_Feature_Outputs.csv';
 data = readtable(file);
 
 label = data.IKrBlock_Label; thres = data.Threshold;
@@ -17,7 +17,7 @@ top10_resistant = get_APD2(pos);
 
 %-------------------------------------------------------------------------%
 %% Run simulation for these cells 
-load('Data\BaseCells.mat');
+load('Manuscript_Data\BasePop.mat');
 
 %%---------------- Run simulation for susceptible cells -----------------%%
 settings.celltype = 'endo'; % 'epi', 'endo', 'mid',

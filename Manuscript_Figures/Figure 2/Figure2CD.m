@@ -4,8 +4,8 @@ blue = [0, 0.4470, 0.7410];
 red = [0.6350, 0.0780, 0.1840];
 
 %% Load Data
-features = readtable('Data\Population_Feature_Outputs.csv');
-test_index = readmatrix('Data\1Hz_14Features_GKr0.06.xlsx','Sheet','Prediction');
+features = readtable('Manuscript_Data\Population_Feature_Outputs.csv');
+test_index = readmatrix('Manuscript_Data\SteadyState_14Features_IKrBlock.xlsx','Sheet','Prediction');
 test_index = test_index(:,1);
 
 APD90 = features.APD90;

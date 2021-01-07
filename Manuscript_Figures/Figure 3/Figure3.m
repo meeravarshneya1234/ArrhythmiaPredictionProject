@@ -1,5 +1,5 @@
 %% Get APD Data 
-file = 'Data\Population_Feature_Outputs.csv';
+file = 'Manuscript_Data\Population_Feature_Outputs.csv';
 data = readtable(file);
 feature.data = data.APD90;
 
