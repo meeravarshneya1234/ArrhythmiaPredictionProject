@@ -63,3 +63,35 @@ if isfile(path)
 else
     save(path,'threshold')
 end
+
+%% Run Fast and Slow Rates Experiments 
+% cardiomyocyte stimulation settings 
+settings_Rate.celltype = 'endo';
+settings_Rate.stim_delay = 100 ; % Time the first stimulus, [ms]
+settings_Rate.stim_dur = 2 ; % Stimulus duration
+settings_Rate.stim_amp = 32.2; % Stimulus amplitude 
+
+% variability settings 
+settings_Rate.scalings = popscalings; % use saved original population scalings 
+settings_Rate.ICs = popICs; % use saved original population ICs 
+settings_Rate.variations = size(popscalings,1); % population size 
+
+% calibrate population? 
+% when creating the initial population, sometimes certain parameter sets
+% create cells that form arrhythmic activity before any trigger is applied.
+% we removed those cells, and reran new ones.
+settings_Rate.remove_arrhythmias = false; % do not remove cells that form arrhythmic activity 
+settings_Rate.remove_experimental = false; % do not remove cells not within experimental range
+settings_Rate.reruncells = false; % do not rerun removed cells 
+
+%-- Run Low Cao 
+settings_Rate.Folder = 'TestPop/Fast';
+settings_Rate.PCL = 400 ;  % Pacing, Interval bewteen stimuli,[ms]
+pert = settings_blockcurrents; 
+BuildPopulation(settings_Rate,pert)
+
+%-- Run High Cao
+settings_Rate.Folder = 'TestPop/Slow';
+settings_Rate.PCL = 5000 ;  % Pacing, Interval bewteen stimuli,[ms]
+pert = settings_blockcurrents; 
+BuildPopulation(settings_Rate,pert)
