@@ -8,7 +8,7 @@ settings.stim_dur = 2 ; % Stimulus duration
 settings.stim_amp = 32.2; % Stimulus amplitude 
 
 % variability settings 
-settings.variations = 1000; % population size 
+settings.variations = 100; % population size 
 settings.sigmaG = 0.3; % standard deviation to vary conductances 
 settings.sigmap = 0.3; % standard deviation to vary gating variables 
 settings.sigmaV = 4; % standard deviation to vary voltage dependences

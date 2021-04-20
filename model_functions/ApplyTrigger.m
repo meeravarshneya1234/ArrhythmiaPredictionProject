@@ -1,7 +1,7 @@
 function ApplyTrigger(settings,pert)
 
 %% Standard Settings
-settings.nBeats = 10 ; % Number of beats to simulate
+settings.nBeats = 100 ; % Number of beats to simulate
 settings.numbertokeep = 10 ;% Determine how many beats to keep. 1 = last beat, 2 = last two beats
 
 %% Load ICs from Folder 

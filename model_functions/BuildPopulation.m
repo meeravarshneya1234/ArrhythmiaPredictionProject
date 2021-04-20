@@ -10,7 +10,7 @@ function BuildPopulation(settings,pert)
 % Outputs: No actual outputs. Data is automatically saved to folder.
 % -------------------------------------------------------------------------
 %% Settings
-settings.nBeats = 10; % Number of beats to simulate
+settings.nBeats = 500; % Number of beats to simulate
 settings.numbertokeep = 10 ;% Determine how many beats to keep. 1 = last beat, 2 = last two beats
 settings.steady_state = true; % Start with each scenario's BL model steady state values.
 
