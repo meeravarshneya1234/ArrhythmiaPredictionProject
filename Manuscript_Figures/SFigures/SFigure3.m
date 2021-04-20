@@ -47,7 +47,6 @@ xlim([0 1000])
 set(gca,'FontSize',12,'FontWeight','bold','FontName','Calibri')
 
 %% SFigure 3B-C
-
 labels = {'SteadyState','SteadyState+SlowAPFeats','SteadyState+FastAPFeats','SteadyState+PacingAPFeats'};
 %% IKr Block Prediction Performance 
 datasets = {'SteadyState_APFeatures_IKrBlock'...
