@@ -24,7 +24,7 @@ settings.reruncells = true; % rerun removed cells
 %-- Folder to Save Data 
 settings.Folder = 'TestPop';
 if ~exist(settings.Folder, 'dir')
-    mkdir(yourFolder)
+    mkdir(settings.Folder)
 end
 
 %-- Run Population 

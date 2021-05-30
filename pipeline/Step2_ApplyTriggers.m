@@ -13,12 +13,14 @@ settings.SubFolder = 'IKrBlock';
 pert = settings_blockcurrents; 
 pert.GKr = 0.06;
 ApplyTrigger(settings,pert)
+pause(25)
 
 %-- Apply ICaL Increase Trigger
 settings.SubFolder = 'ICaLIncrease';
 pert = settings_blockcurrents; 
 pert.PCa = 15.13;
 ApplyTrigger(settings,pert)
+pause(25)
 
 %-- Apply Inject Trigger
 settings.SubFolder = 'Inject';

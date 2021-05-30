@@ -24,12 +24,14 @@ settings_Cao.reruncells = false; % do not rerun removed cells
 
 %-- Run Low Cao 
 settings_Cao.Folder = 'TestPop/LowCao';
+mkdir(settings_Cao.Folder)
 pert = settings_blockcurrents; 
 pert.Cao = 0.5;
 BuildPopulation(settings_Cao,pert)
 
 %-- Run High Cao
 settings_Cao.Folder = 'TestPop/HighCao';
+mkdir(settings_Cao.Folder)
 pert = settings_blockcurrents; 
 pert.Cao = 2;
 BuildPopulation(settings_Cao,pert)
@@ -47,7 +49,7 @@ settings_thres.variations = 1;
 % Make sure this is set to 1 because we're already at steady state 
 settings_thres.nBeats = 1 ; % Number of beats to simulate
 
-n_variants = 10; %size(popscalings,1);
+n_variants = size(popscalings,1);
 plot_flag = false; % plot the results
 threshold = zeros(n_variants,1);
 for i = 1:n_variants
@@ -56,14 +58,9 @@ for i = 1:n_variants
     threshold(i) = Find_Threshold(settings_thres,plot_flag);
 end
 
-savdir = 'C:\TestPopulation\TestPop\';
+savdir = 'TestPop/';
 path = fullfile(savdir,'Thresholds.mat');
-if isfile(path)
-    disp('Thresholds VARIABLE ALREADY EXISTS.')
-else
-    save(path,'threshold')
-end
-
+save(path,'threshold')
 %% Run Fast and Slow Rates Experiments 
 % cardiomyocyte stimulation settings 
 settings_Rate.celltype = 'endo';
@@ -84,14 +81,16 @@ settings_Rate.remove_arrhythmias = false; % do not remove cells that form arrhyt
 settings_Rate.remove_experimental = false; % do not remove cells not within experimental range
 settings_Rate.reruncells = false; % do not rerun removed cells 
 
-%-- Run Low Cao 
-settings_Rate.Folder = 'TestPop/Fast';
+%-- Run Fast Pacing
+settings_Rate.Folder = 'TestPop/PCL_400';
+mkdir(settings_Rate.Folder)
 settings_Rate.PCL = 400 ;  % Pacing, Interval bewteen stimuli,[ms]
 pert = settings_blockcurrents; 
 BuildPopulation(settings_Rate,pert)
 
-%-- Run High Cao
-settings_Rate.Folder = 'TestPop/Slow';
+%-- Run Slow Pacing
+settings_Rate.Folder = 'TestPop/PCL_5000';
+mkdir(settings_Rate.Folder)
 settings_Rate.PCL = 5000 ;  % Pacing, Interval bewteen stimuli,[ms]
 pert = settings_blockcurrents; 
 BuildPopulation(settings_Rate,pert)
