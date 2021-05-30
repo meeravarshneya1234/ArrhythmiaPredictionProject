@@ -23,7 +23,8 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, normalize
 from xgboost import XGBClassifier
 from sklearn.ensemble import VotingClassifier
 from sklearn.pipeline import make_pipeline
-
+from sklearn.metrics import f1_score
+from sklearn.metrics import matthews_corrcoef
 
 import time
 import seaborn as sns
@@ -48,11 +49,11 @@ class ML_Pipeline(object):
         df = df.dropna()
         return df  
     
-    def evaluate(self,classifer, x_test, y_test):
+    def evaluate(self,classifer, x_test, y_test,optimal_threshold):
         prob = classifer.predict_proba(x_test)
         fpr, tpr, threshold = roc_curve(y_test, prob[:,1])
-        optimal_idx = np.argmax(tpr-fpr)
-        optimal_threshold = threshold[optimal_idx]
+#         optimal_idx = np.argmax(tpr-fpr)
+#         optimal_threshold = 0.5 #threshold[optimal_idx]
         accuracy = accuracy_score(y_test,prob[:,1]>=optimal_threshold)
         tn, fp, fn, tp = confusion_matrix(y_test,prob[:,1]>=optimal_threshold).ravel()
         sen = tp/(tp + fn)
@@ -60,11 +61,21 @@ class ML_Pipeline(object):
         npv = tn/(tn + fn)
         ppv = tp/(tp + fp) 
         auc_score = auc(fpr, tpr)
-        metrics = [accuracy, optimal_threshold, sen, spe, npv, ppv, auc_score]
+        f1score = f1_score(y_test, prob[:,1]>=optimal_threshold)
+        mcc = matthews_corrcoef(y_test, prob[:,1]>=optimal_threshold)
+        metrics = [accuracy, optimal_threshold, sen, spe, npv, ppv, f1score, mcc, auc_score]
         rocs = [fpr, tpr]
         prediction = np.multiply(prob[:,1]>optimal_threshold,1)
         conf_matrix = confusion_matrix(y_test,prob[:,1]>=optimal_threshold)
         return metrics, rocs, prob, prediction, conf_matrix
+    
+    def get_threshold(self,classifier,x,y):
+        prob = classifier.predict_proba(x)
+        fpr, tpr, threshold = roc_curve(y, prob[:,1])
+        optimal_idx = np.argmax(tpr-fpr)
+        optimal_threshold = threshold[optimal_idx]
+        return optimal_threshold
+    
     
     def run_LR(self,nfolds=5):
         
@@ -85,11 +96,11 @@ class ML_Pipeline(object):
         grid_search.fit(x_train, y_train)
         print('------------------------------------------')
         print('LR Best Params: ')
-        print(grid_search.best_params_)
+        print(grid_search.best_params_)        
+        print(grid_search.best_score_)  
         
-        print(grid_search.best_score_)        
-        result = self.evaluate(grid_search, x_test, y_test)        
-        
+        thres = self.get_threshold(grid_search, x_train, y_train)            
+        result = self.evaluate(grid_search, x_test, y_test, thres)                
         return grid_search,result
     
     def run_SVM(self,nfolds=5):
@@ -102,7 +113,7 @@ class ML_Pipeline(object):
         x_train = StandardScaler().fit_transform(x_train)
         x_test = StandardScaler().fit_transform(x_test)
 
-        param_grid = {'C': [0.1,1,10,30,50,70, 100], 'gamma': [1,0.1,0.01,0.001],'kernel': ['rbf', 'linear']}    
+        param_grid = {'C': [0.1,1,10,100], 'gamma': [1,0.1,0.01,0.001],'kernel': ['rbf', 'linear']}    
         grid_search = GridSearchCV(SVC(probability=True, random_state=self.seed), param_grid, cv=nfolds,verbose = 0,n_jobs = -1)
         grid_search.fit(x_train, y_train)
         print('------------------------------------------')
@@ -110,7 +121,8 @@ class ML_Pipeline(object):
         print(grid_search.best_params_)
         print(grid_search.best_score_)       
         
-        result = self.evaluate(grid_search, x_test, y_test)  
+        thres = self.get_threshold(grid_search, x_train, y_train)            
+        result = self.evaluate(grid_search, x_test, y_test, thres)   
         return grid_search,result
         
     def run_KNN(self,nfolds=5):
@@ -132,7 +144,8 @@ class ML_Pipeline(object):
         print(grid_search.best_params_)
         print(grid_search.best_score_)       
         
-        result = self.evaluate(grid_search, x_test, y_test)  
+        thres = self.get_threshold(grid_search, x_train, y_train)            
+        result = self.evaluate(grid_search, x_test, y_test, thres)   
         return grid_search,result
     
     def run_RF(self,nfolds=5):
@@ -165,7 +178,8 @@ class ML_Pipeline(object):
         print(grid_search.best_params_)
         print(grid_search.best_score_)       
         
-        result = self.evaluate(grid_search, x_test, y_test)  
+        thres = self.get_threshold(grid_search, x_train, y_train)            
+        result = self.evaluate(grid_search, x_test, y_test, thres)   
         return grid_search,result
 
     def run_GB(self,nfolds=5):
@@ -179,12 +193,10 @@ class ML_Pipeline(object):
         x_test = StandardScaler().fit_transform(x_test)
         
         param_grid = {
-        'learning_rate': [1, 0.5],
-        'max_depth': [100, 200],
-        'max_features': [2, 3],
-        'min_samples_leaf': [3, 4, 5],
-        'min_samples_split': [8],
-        'n_estimators': [100, 200]
+            'learning_rate': [1, 0.5, 0.01],
+            'max_depth': [100, 200],
+            'max_features': list(range(1,x_train.shape[1])),
+            'n_estimators': [100, 200]
         }
 
         gb = GradientBoostingClassifier()
@@ -195,8 +207,9 @@ class ML_Pipeline(object):
         print('Gradient Boosting Best Params:')
         print(grid_search.best_params_)
         print(grid_search.best_score_)       
-        
-        result = self.evaluate(grid_search, x_test, y_test)  
+                
+        thres = self.get_threshold(grid_search, x_train, y_train)            
+        result = self.evaluate(grid_search, x_test, y_test, thres)   
         return grid_search,result
     
     def run_XGB(self,nfolds=5):
@@ -223,18 +236,17 @@ class ML_Pipeline(object):
         xgb = XGBClassifier(random_state=self.seed)
         grid_search = GridSearchCV(estimator = xgb, param_grid = param_grid, 
                                   cv = nfolds,n_jobs = -1)
-        grid_search.fit(x_train, y_train)  
-        
-        result = self.evaluate(grid_search, x_test, y_test)  
-        
+        grid_search.fit(x_train, y_train)          
         print('------------------------------------------')
         print('XGBoost Best Params: ')
         print(grid_search.best_params_)
         print(grid_search.best_score_) 
         
+        thres = self.get_threshold(grid_search, x_train, y_train)            
+        result = self.evaluate(grid_search, x_test, y_test, thres)           
         return grid_search,result
 
-    def run_ANN(self,nfolds=5):
+    def run_MLP(self,nfolds=5,max_iter=300):
         
         x_train = self.train_test_data[0]
         x_test = self.train_test_data[1]
@@ -251,17 +263,18 @@ class ML_Pipeline(object):
         'activation':['relu','tanh']
         }
         # Create a based model
-        ann = MLPClassifier(alpha=1e-5,random_state=self.seed)
+        MLP = MLPClassifier(alpha=1e-5,random_state=self.seed)
         # Instantiate the grid search model
-        grid_search = GridSearchCV(estimator = ann, param_grid = param_grid, 
+        grid_search = GridSearchCV(estimator = MLP, param_grid = param_grid, 
                                   cv = nfolds,n_jobs = -1)
         grid_search.fit(x_train, y_train)
         print('------------------------------------------')
-        print('ANN Best Params: ')
+        print('MLP Best Params: ')
         print(grid_search.best_params_)
         print(grid_search.best_score_)       
         
-        result = self.evaluate(grid_search, x_test, y_test)  
+        thres = self.get_threshold(grid_search, x_train, y_train)            
+        result = self.evaluate(grid_search, x_test, y_test, thres)   
         return grid_search,result
 
     def run_NB(self,nfolds=5):
@@ -276,7 +289,8 @@ class ML_Pipeline(object):
         
         gnb = GaussianNB()
         gnb.fit(x_train, y_train)        
-        result = self.evaluate(gnb, x_test, y_test)  
+        thres = self.get_threshold(gnb, x_train, y_train)            
+        result = self.evaluate(gnb, x_test, y_test, thres)   
         return result
     
     def create_table(self,classifiers,keys):    
@@ -295,7 +309,7 @@ class ML_Pipeline(object):
 
 
         result_table = dict(zip(keys, metrics)) 
-        columns = ["Accuracy","Threshold","Sensitivity", "Specificity", "NPV", "PPV", "AUC"]
+        columns = ["Accuracy","Threshold","Sensitivity", "Specificity", "NPV", "PPV", "F1score", "MatthewCoef","AUC"]
 
         result_table = pd.DataFrame.from_dict(result_table, orient='index')
         result_table.columns = columns
