@@ -1,4 +1,4 @@
-This folder contains source code to reproduce the figures for 
+This folder contains source code to reproduce the figures for Prediction of arrhythmia susceptibility through mathematical modeling and machine learning
 
 ## Requirements
 MATLAB - version 2019b or higher; 2019b was used to run all simulations.
